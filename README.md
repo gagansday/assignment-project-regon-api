@@ -13,3 +13,8 @@ If the condition is not met, it is impossible to connect to the REGON database, 
 An e-mail with the account data is sent to our address.
 
 At all we need to be sure about your well coding practice in architecting project.. conventions, structure, how make the foundation of the app and organize files and folders through most important coding guidelines and quality. This knowledge is indispensable to undertake work in our team room.
+
+#### Some tax ids
+
+-   7391195275
+-   7123277406
