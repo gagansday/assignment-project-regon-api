@@ -26,6 +26,12 @@
                     name="password_confirmation" required autocomplete="new-password" />
             </div>
 
+            <div class="mt-4">
+                <x-jet-label for="nip_number" value="{{ __('NIP Number') }}" />
+                <x-jet-input id="nip_number" class="block w-full mt-1" type="text" name="nip_number"
+                    :value="old('nip_number')" required />
+            </div>
+
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">
                     <x-jet-label for="terms">
