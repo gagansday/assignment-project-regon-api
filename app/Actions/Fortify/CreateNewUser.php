@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Helpers\GusRegonApi;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -27,10 +28,29 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['required', 'accepted'] : '',
         ])->validate();
 
-        return User::create([
+        $nipNumber = $input['nip_number'];
+
+        $company = (new GusRegonApi())->searchNIP($nipNumber);
+
+        if (!$company) $this->customValidationError();
+
+        $user = User::create([
             'email' => $input['email'],
-            'nip_number' => $input['nip_number'],
+            'nip_number' => $nipNumber,
             'password' => Hash::make($input['password']),
         ]);
+
+        $user->company()->create($company);
+
+        return $user;
+    }
+
+    public function customValidationError()
+    {
+        Validator::make(
+            [],
+            ['nip_number' => 'required'],
+            ['required' => 'Verification is ongoing. We will contact your office to confirm the data.',]
+        )->validate();
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
+use App\Helpers\GusRegonApi;
 use Illuminate\Support\Facades\Route;
+use RicorocksDigitalAgency\Soap\Facades\Soap;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/test', function () {
+    $record = (new GusRegonApi())->searchNIP('7391195275');
+    dump($record);
+});
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
