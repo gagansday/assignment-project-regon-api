@@ -15,11 +15,6 @@ use RicorocksDigitalAgency\Soap\Facades\Soap;
 |
 */
 
-Route::get('/test', function () {
-    $record = (new GusRegonApi())->searchNIP('7391195275');
-    dump($record);
-});
-
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('/', function () {
