@@ -21,6 +21,21 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input)
     {
+        $company = $this->validate($input);
+
+        $user = User::create([
+            'email' => $input['email'],
+            'nip_number' =>  $input['nip_number'],
+            'password' => Hash::make($input['password']),
+        ]);
+
+        $user->company()->create($company);
+
+        return $user;
+    }
+
+    public function validate($input)
+    {
         Validator::make($input, [
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
@@ -28,21 +43,24 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['required', 'accepted'] : '',
         ])->validate();
 
-        $nipNumber = $input['nip_number'];
+        $company = (new GusRegonApi())->searchNIP($input['nip_number']);
 
-        $company = (new GusRegonApi())->searchNIP($nipNumber);
+        if (!$company || !count(array_filter($company['pkd'], function ($pdk) {
+            return $pdk['code'] === '6920Z';
+        })))
+            $this->registrationFailed();
 
-        if (!$company) $this->customValidationError();
+        return $company;
+    }
+    public function registrationFailed()
+    {
+        $this->sendMailToOffice();
+        $this->customValidationError();
+    }
 
-        $user = User::create([
-            'email' => $input['email'],
-            'nip_number' => $nipNumber,
-            'password' => Hash::make($input['password']),
-        ]);
-
-        $user->company()->create($company);
-
-        return $user;
+    public function sendMailToOffice()
+    {
+        // TODO:
     }
 
     public function customValidationError()
