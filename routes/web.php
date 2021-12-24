@@ -14,13 +14,6 @@ use RicorocksDigitalAgency\Soap\Facades\Soap;
 |
 */
 
-Route::get('/test', function () {
-    return new App\Mail\NeedVerificationMail([
-        'email' => 'abc@dd.com',
-        'nip_number' => '1234567890'
-    ]);
-});
-
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('/', function () {
