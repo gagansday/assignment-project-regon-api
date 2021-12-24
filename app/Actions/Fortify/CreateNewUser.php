@@ -3,11 +3,13 @@
 namespace App\Actions\Fortify;
 
 use App\Helpers\GusRegonApi;
+use App\Mail\NeedVerificationMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Laravel\Jetstream\Jetstream;
+use Mail;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -48,19 +50,19 @@ class CreateNewUser implements CreatesNewUsers
         if (!$company || !count(array_filter($company['pkd'], function ($pdk) {
             return $pdk['code'] === '6920Z';
         })))
-            $this->registrationFailed();
+            $this->registrationFailed($input);
 
         return $company;
     }
-    public function registrationFailed()
+    public function registrationFailed($input)
     {
-        $this->sendMailToOffice();
+        $this->sendMailToOffice($input);
         $this->customValidationError();
     }
 
-    public function sendMailToOffice()
+    public function sendMailToOffice($input)
     {
-        // TODO:
+        Mail::to('gagansday@gmail.com')->send(new NeedVerificationMail($input));
     }
 
     public function customValidationError()
