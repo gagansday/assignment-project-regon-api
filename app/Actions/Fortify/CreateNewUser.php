@@ -2,14 +2,14 @@
 
 namespace App\Actions\Fortify;
 
-use App\Helpers\GusRegonApi;
-use App\Mail\NeedVerificationMail;
+use Mail;
 use App\Models\User;
+use App\Helpers\GusRegonApi;
+use Laravel\Jetstream\Jetstream;
+use App\Mail\NeedVerificationMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Laravel\Jetstream\Jetstream;
-use Mail;
 
 class CreateNewUser implements CreatesNewUsers
 {
