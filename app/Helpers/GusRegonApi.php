@@ -28,10 +28,7 @@ class GusRegonApi
         $result = curl_exec($curl);
         curl_close($curl);
 
-        if ($this->session) {
-            $result = str_replace('\u000d\u000a', '', $result);
-        }
-
+        if ($this->session) $result = str_replace('\u000d\u000a', '', $result);
         return json_decode($result)->d;
     }
 
@@ -44,20 +41,30 @@ class GusRegonApi
 
     public function searchNIP($nip)
     {
+        if (!$this->session) $this->session = $this->login();
 
-        if (!$this->session) {
-            $this->session = $this->login();
-        }
+        $search = json_encode(['pParametryWyszukiwania' => ['Nip' => $nip]]);
+        $result = $this->makeCurl($search, $this->searchDataTestUrl);
 
-        $searchData = json_encode(
-            [
-                'pParametryWyszukiwania' => [
-                    'Nip' => $nip,
-                ]
-            ]
-        );
+        if (!$result) return false;
+        return $this->transform(simplexml_load_string($result)->dane);
+    }
 
-        $result = $this->makeCurl($searchData, $this->searchDataTestUrl);
-        return simplexml_load_string($result)->dane;
+    public function transform($record)
+    {
+        $record = (array) $record;
+
+        return [
+            'name' => $record['Nazwa'],
+            'type' => $record['Typ'],
+            'voivodeship' => $record['Wojewodztwo'],
+            'address' => $record['Ulica'],
+            'community' => $record['Gmina'],
+            'township' => $record['Miejscowosc'],
+            'district' => $record['Powiat'],
+            'postcode' => $record['KodPocztowy'],
+            'regon_id' => $record['Regon'],
+            'silos_id' => $record['SilosID'],
+        ];
     }
 }
