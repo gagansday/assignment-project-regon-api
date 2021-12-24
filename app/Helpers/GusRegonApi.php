@@ -52,7 +52,7 @@ class GusRegonApi
     {
         if (!$this->session) $this->session = $this->login();
         $search = json_encode([
-            "pRegon" => $record['Regon'] . '00000', // "51145001200000",
+            "pRegon" => str_pad($record['Regon'], 14, 0),
             "pNazwaRaportu" => "DaneRaportDzialalnosciFizycznejPubl",
             "pSilosID" => $record['SilosID']
         ]);
