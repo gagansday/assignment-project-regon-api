@@ -4,11 +4,7 @@ namespace App\Helpers;
 
 class GusRegonApi
 {
-    protected $loginUrl = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc/ajaxEndpoint/Zaloguj';
-    protected $searchDataUrl = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc/ajaxEndpoint/daneSzukaj';
-
-    protected $loginTestUrl = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc/ajaxEndpoint/Zaloguj';
-    protected $searchDataTestUrl = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc/ajaxEndpoint/daneSzukaj';
+    protected $url = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc/ajaxEndpoint/';
 
     protected $key = "abcde12345abcde12345";
     protected $session = null;
@@ -35,7 +31,8 @@ class GusRegonApi
     protected function login()
     {
         $login = json_encode(["pKluczUzytkownika" => $this->key]);
-        $result = $this->makeCurl($login, $this->loginTestUrl);
+        $method = 'Zaloguj';
+        $result = $this->makeCurl($login, $this->url . $method);
         return $result;
     }
 
@@ -44,15 +41,37 @@ class GusRegonApi
         if (!$this->session) $this->session = $this->login();
 
         $search = json_encode(['pParametryWyszukiwania' => ['Nip' => $nip]]);
-        $result = $this->makeCurl($search, $this->searchDataTestUrl);
+        $method = 'daneSzukaj';
+        $result = $this->makeCurl($search, $this->url . $method);
 
         if (!$result) return false;
-        return $this->transform(simplexml_load_string($result)->dane);
+        return $this->transformCompanyInfo(simplexml_load_string($result)->dane);
     }
 
-    public function transform($record)
+    public function getPKD($record)
     {
-        $record = (array) $record;
+        if (!$this->session) $this->session = $this->login();
+        $search = json_encode([
+            "pRegon" => $record['Regon'] . '00000', // "51145001200000",
+            "pNazwaRaportu" => "DaneRaportDzialalnosciFizycznejPubl",
+            "pSilosID" => $record['SilosID']
+        ]);
+        $method = 'DanePobierzPelnyRaport';
+        $result = $this->makeCurl($search, $this->url . $method);
+
+        if (!$result) return [];
+        $pdk = [];
+
+        foreach (simplexml_load_string($result) as $row) {
+            $pdk[] = $this->transformPKD((array)$row);
+        }
+
+        return $pdk;
+    }
+
+    public function transformCompanyInfo($record)
+    {
+        $record = (array)$record;
 
         return [
             'name' => $record['Nazwa'],
@@ -65,6 +84,16 @@ class GusRegonApi
             'postcode' => $record['KodPocztowy'],
             'regon_id' => $record['Regon'],
             'silos_id' => $record['SilosID'],
+            'pkd' => $this->getPKD($record)
+        ];
+    }
+
+    public function transformPKD($record)
+    {
+        return [
+            'code' => $record['fiz_pkdKod'],
+            'name' => $record['fiz_pkdNazwa'],
+            'isPrincipalActivity'  => trim($record['fiz_pkdPrzewazajace']) ? true : false,
         ];
     }
 }
