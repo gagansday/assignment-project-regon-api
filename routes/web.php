@@ -1,6 +1,5 @@
 <?php
 
-use App\Helpers\GusRegonApi;
 use Illuminate\Support\Facades\Route;
 use RicorocksDigitalAgency\Soap\Facades\Soap;
 
