@@ -1,3 +1,61 @@
+## Quick Note:
+
+I'm not sure storing any PKD activites.
+
+##### Requirements
+
+-   [docker](https://www.docker.com/)
+-   [docker-compose](https://docs.docker.com/compose/)
+-   [docker-desktop](https://docs.docker.com/desktop/) (optional)
+
+#### Only if you are cloing repository for the first time.
+
+Install dependences if you don't have composer installed on your local system
+
+**bash shell**
+
+`docker run --rm -v ${PWD}:/app composer install --ignore-platform-reqs`
+
+**fish shell**
+
+`docker run --rm -v $PWD:/app composer install --ignore-platform-reqs`
+
+#### Quick Start
+
+Create environment file:
+
+`cp .env.example .env`
+
+Build and run docker environment:
+
+`sail up --build -d`
+
+Install dependences:
+
+`sail composer install`
+
+`sail npm install`
+
+Migrate Database:
+
+`sail artisan migrate`
+
+Build assets:
+
+`sail npm run prod`
+
+Run artisan commands:
+
+`sail artisan [command]`
+
+To test mail feature:
+
+`sail artisan queue:work`
+
+Stop docker environment:
+
+`sail down`
+
 ## Task
 
 Basically you have to develop a web application that will create User account and verification
