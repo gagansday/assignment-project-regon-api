@@ -1,7 +1,3 @@
-## Quick Note:
-
-I'm not sure storing any PKD activites.
-
 ##### Requirements
 
 -   [docker](https://www.docker.com/)
